@@ -1,22 +1,20 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Link, Tabs } from 'expo-router';
-import { Pressable } from 'react-native';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { Tabs } from 'expo-router';
+import React, { useMemo } from 'react';
 
-import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
-
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
-}
+import Colors from '@/constants/Colors';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Text, View } from 'react-native';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const username = useMemo(async () => {
+    const name = await AsyncStorage.getItem('fullname')
+    return name || "User"
+  }, [])
 
   return (
     <Tabs
@@ -24,34 +22,43 @@ export default function TabLayout() {
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         // Disable the static render of the header on web
         // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
+        // headerShown: false,
+        tabBarShowLabel: false
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable>
-                {({ pressed }) => (
-                  <FontAwesome
-                    name="info-circle"
-                    size={25}
-                    color={Colors[colorScheme ?? 'light'].text}
-                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
+          headerTitle: (props) => (
+            <View>
+              <Text className='text-2xl font-semibold'>Scanner</Text>
+              <Text className='text-sm text-gray-500'>{username}</Text>
+            </View>
           ),
+          tabBarIcon: ({ color }) => <AntDesign name="scan" className='-mb-2' size={24} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="history"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          headerTitle: (props) => (
+            <View>
+              <Text className='text-2xl font-semibold'>History</Text>
+              <Text className='text-sm text-gray-500'>{username}</Text>
+            </View>
+          ),
+          tabBarIcon: ({ color }) => <AntDesign name="history" className='-mb-2' size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          headerTitle: (props) => (
+            <View>
+              <Text className='text-2xl font-semibold'>Profile</Text>
+              <Text className='text-sm text-gray-500'>{username}</Text>
+            </View>
+          ),
+          tabBarIcon: ({ color }) => <FontAwesome5 name="user" className='-mb-2' size={24} color={color} />,
         }}
       />
     </Tabs>
